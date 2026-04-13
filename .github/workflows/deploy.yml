@@ -1,4 +1,4 @@
-name: Deploy Titanic API
+name: CD - Deploy Titanic API
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -28,7 +28,9 @@ jobs:
         with:
           context: .
           push: true
-          tags: orlich95/titanic-api:latest
+          tags: |
+            orlich95/titanic-api:latest
+            orlich95/titanic-api:tp7
 
       - name: Desplegar en EC2 por SSH
         uses: appleboy/ssh-action@v1.2.2
@@ -37,7 +39,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo docker pull orlich95/titanic-api:latest
+            sudo docker pull orlich95/titanic-api:tp7
             sudo docker stop titanic-api || true
             sudo docker rm titanic-api || true
-            sudo docker run -d -p 8000:8000 --name titanic-api orlich95/titanic-api:latest
+            sudo docker run -d -p 8000:8000 --name titanic-api orlich95/titanic-api:tp7
